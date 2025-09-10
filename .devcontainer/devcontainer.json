@@ -1,0 +1,14 @@
+{
+  "name": "Node.js 10 Alpine",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint"
+      ]
+    }
+  },
+  "postCreateCommand": "npm install"
+}
