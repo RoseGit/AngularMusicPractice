@@ -15,9 +15,10 @@ export class UserService {
         this.url = GLOBAL.url;
     }
 
-    signup(user_to_login, gethash = null) {
+    signup(user_to_login, gethash: boolean = false) {
         if (gethash != null) {
-            user_to_login.gethash = gethash;
+            user_to_login.getHash = gethash;
+            console.log('user to login '+user_to_login);
         }
 
         let json = JSON.stringify(user_to_login);
@@ -62,6 +63,7 @@ export class UserService {
 
     updateUser(user_to_update) {
         //json en formato de string
+        console.log('el token es valor ' + this.getToken());
         let params = JSON.stringify(user_to_update);
         let headers = new Headers({ 
             'Content-Type': 'application/json' ,

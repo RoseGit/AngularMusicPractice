@@ -43,7 +43,7 @@ export class AppComponent implements OnInit {
           localStorage.setItem('identity', JSON.stringify(identity));
 
           //conseguir el token para enviarlo en cada peticion Http 
-          this._userService.signup(this.user, 'true').subscribe(
+          this._userService.signup(this.user, true).subscribe( 
             response => {
               let token = response.token;
               this.token = token;
