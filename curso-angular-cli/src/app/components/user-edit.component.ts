@@ -55,6 +55,9 @@ export class UserEditComponent implements OnInit {
                                 localStorage.setItem('identity', JSON.stringify(this.user)); 
                                 console.log('Imagen guardada');
                                 console.log(this.user);
+
+                                let image_path = this.url + '/get.image-url/'+this.user.image;
+                                document.getElementById("image-logged").setAttribute('src', image_path);
                             }
                         );
                     }
