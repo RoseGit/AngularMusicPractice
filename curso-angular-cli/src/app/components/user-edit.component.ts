@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { UserService } from '../services/user.service';
 import { User } from '../models/user';
+import { identifierModuleUrl } from '@angular/compiler';
+import {GLOBAL} from '../services/global'
 
 @Component({
     selector: "user-edit",
@@ -15,6 +17,7 @@ export class UserEditComponent implements OnInit {
     public identity;
     public token;
     public alertMessage;
+    public url:string;
 
     constructor(private _userService: UserService) {
         this.titulo = 'Actualizar mis datos ';
@@ -23,23 +26,39 @@ export class UserEditComponent implements OnInit {
         this.token = this._userService.getToken();
 
         this.user = this.identity;
+        this.url = GLOBAL.url;
     }
 
     ngOnInit() {
         console.log('user-edit.component.ts cargado');
     }
 
-    onSubmit() {
-        console.log(this.user);
-
+    onSubmit() {        
         this._userService.updateUser(this.user).subscribe(
             response => {                 
                 if(!response.user){
                     this.alertMessage = 'El usuario no se ha actualizado';
                 }else{
                     //this.user = response.user;    
+                    console.log('1');
                     localStorage.setItem('identity', JSON.stringify(this.user)); 
                     document.getElementById("identity_name").innerHTML = this.user.name;
+
+                    if(!this.filesToUpload){
+                        // Redireccoin 
+                        console.log('redireccion');
+                    }else{
+                        console.log('peticion');
+                        this.makeFileRequest(this.url+'/upload-image-user/'+this.user._id, [], this.filesToUpload).then(
+                            (result:any) =>{ 
+                                this.user.image = result.image;
+                                localStorage.setItem('identity', JSON.stringify(this.user)); 
+                                console.log('Imagen guardada');
+                                console.log(this.user);
+                            }
+                        );
+                    }
+
                     this.alertMessage = 'El usuario se ha actualizado correctamente';
                 }
             },
@@ -52,5 +71,40 @@ export class UserEditComponent implements OnInit {
                 }
             }
         );
+    }
+
+    public filesToUpload: Array<File>;
+
+    fileChangeEvent(fileInput: any){
+        console.log('Subiendo archivo');
+        this.filesToUpload = <Array<File>> fileInput.target.files;//obtiene los archivos que se han seleccionado en el input 
+        console.log(this.filesToUpload);
+    }
+
+    makeFileRequest(url:string, params: Array<string>, files: Array<File>){
+        //obtenemos el token del usuario 
+        var token = this.token;
+        return new Promise(function(resolve, reject){
+            var formData:any = new FormData();
+            var xhr = new XMLHttpRequest();
+
+            for(var i = 0; i < files.length; i++){
+                formData.append('image', files[i], files[i].name);
+            }
+
+            xhr.onreadystatechange = function(){
+                if(xhr.readyState==4){
+                    if(xhr.status==200){
+                        resolve(JSON.parse(xhr.response));
+                    }else{
+                        reject(xhr.response);
+                    }                    
+                }
+            }
+
+            xhr.open('POST', url, true);
+            xhr.setRequestHeader('Authorization', token);
+            xhr.send(formData);
+        });
     }
 }
